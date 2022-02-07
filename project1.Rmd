@@ -31,7 +31,7 @@ Christopher Tang
 **1**
 \small
 ```{r, eval = TRUE}
-load("bikedata.RData")
+readRDS("bikedata.RData")
 bikenum <- as.data.frame(bikenum); day_of_week <- as.data.frame(day_of_week)
 duration <- as.data.frame(duration); member <- as.data.frame(member)
 station_end <- as.data.frame(station_end); station_start <- as.data.frame(station_start)
