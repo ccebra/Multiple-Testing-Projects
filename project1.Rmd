@@ -1,0 +1,58 @@
+---
+title: "STAT 27850 Project 1"
+header-includes:
+  - \usepackage{soul}
+  - \usepackage{xcolor}
+  - \usepackage{titlesec}
+  - \DeclareMathOperator*{\argmin}{argmin}
+output:
+  pdf_document: default
+geometry:
+- margin=1 in
+- top=  0.9cm
+fontsize: 10pt 
+---
+```{r global-options, include=FALSE}
+knitr::opts_chunk$set(
+        fig.width=5, fig.height=3.4,
+        fig.path='Figs/', fig.align='center',
+        warning=FALSE, message=FALSE,
+        strip.white=TRUE, cache=TRUE)
+```
+\newcommand{\h}[1]{\colorbox{yellow}{$\displaystyle #1$}} 
+\titlespacing{\title}{0pt}{\parskip}{-\parskip}    
+\vspace{-12.5truemm} 
+ 
+\begin{center}
+Christopher Tang
+\end{center}
+
+
+**1**
+\small
+```{r, eval = TRUE}
+load("bikedata.RData")
+bikenum <- as.data.frame(bikenum); day_of_week <- as.data.frame(day_of_week)
+duration <- as.data.frame(duration); member <- as.data.frame(member)
+station_end <- as.data.frame(station_end); station_start <- as.data.frame(station_start)
+days_since_Jan1_2010 <- as.data.frame(days_since_Jan1_2010)
+data <- cbind(station_start,station_end,duration,member,bikenum,day_of_week,days_since_Jan1_2010 )
+```
+\normalsize
+   \emph{(a)}     
+       
+\small
+```{r, eval = TRUE}
+
+```
+\normalsize
+
+
+
+\small
+```{r, eval = TRUE}
+
+```
+\normalsize   
+
+       blahafhkd
