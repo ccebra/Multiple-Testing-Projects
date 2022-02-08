@@ -39,8 +39,14 @@ duration <- as.data.frame(duration); member <- as.data.frame(member)
 station_end <- as.data.frame(station_end); station_start <- as.data.frame(station_start)
 days_since_Jan1_2010 <- as.data.frame(days_since_Jan1_2010)
 data <- cbind(station_start,station_end,duration,member,bikenum,day_of_week,days_since_Jan1_2010 )
+data$ridename <- paste(station_start,' - ',station_end)
 data <- add_count(data,station_start,station_end)
 
+```
+
+```{r, eval = TRUE}
+weather <- read.csv("WeatherData.csv")
+data <- left_join(data,weather,by='days_since_Jan1_2010')
 ```
 \normalsize
    \emph{(a)}     
