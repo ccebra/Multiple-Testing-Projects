@@ -33,7 +33,7 @@ Christopher Tang
 ```{r, eval = TRUE}
 library(dplyr)
 library(ggplot2)
-load("bikedata.RData")
+load("data/bikedata.RData")
 bikenum <- as.data.frame(bikenum); day_of_week <- as.data.frame(day_of_week)
 duration <- as.data.frame(duration); member <- as.data.frame(member)
 station_end <- as.data.frame(station_end); station_start <- as.data.frame(station_start)
@@ -44,7 +44,7 @@ data <- add_count(data,station_start,station_end)
 
 ```
 
-```{r, eval = TRUE}
+```{r}
 weather <- read.csv("WeatherData.csv")
 data <- left_join(data,weather,by='days_since_Jan1_2010')
 ```
@@ -78,10 +78,41 @@ ggplot(data=df, aes(x=days_since_Jan1_2010, y=mean_daily_duration)) +
 ```
 
 ```{r}
-routes <- data[,c('station_start', 'station_end')] %>% distinct()
-
-lm(duration ~ days_since_Jan1_2010 + day_of_week + member, data=data[data$station_start==31104 & data$station_end==31106,]) %>% summary()
+routes <- data[data$n > 1000,][,c('station_start', 'station_end')] %>% distinct()
+route_pvals <- rep(NA, nrow(routes))
+route_coef <- rep(NA, nrow(routes))
+for (r in 1:nrow(routes)) {
+  fit <- lm(duration ~ days_since_Jan1_2010 + day_of_week + member + TMAX + PRCP,
+     data=data[data$station_start==routes[r,]$station_start & data$station_end==routes[r,]$station_end,])
+  pval <- summary(fit)$coefficients[,4]['days_since_Jan1_2010']
+  coef <- summary(fit)$coefficients[,1]['days_since_Jan1_2010']
+  route_pvals[r] <- pval
+  route_coef[r] <- coef
+}
 ```
+
+```{r}
+# routes w/ p val lower 0.05/1000
+print(routes[which(route_pvals < 0.05/1000),])
+
+print(route_coef[which(route_pvals < 0.05/1000)])
+# stations[stations[,1] == 31011]
+# stations[stations[,1] == 31007]
+# stations[stations[,1] == 31217]
+# stations[stations[,1] == 31235]
+# stations[stations[,1] == 31200]
+# stations[stations[,1] == 31225]
+```
+
+```{r}
+df <- data[data$station_start==31200 & data$station_end==31225,] %>%
+  group_by(days_since_Jan1_2010) %>%
+  summarize(mean_daily_duration = mean(duration), count=n(), day_of_week=day_of_week, member=member)
+
+ggplot(data=df, aes(x=days_since_Jan1_2010, y=mean_daily_duration)) +
+  geom_line() #+ ylim(c(0,5000))
+```
+
 
 
        
