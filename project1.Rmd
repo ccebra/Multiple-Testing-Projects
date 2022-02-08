@@ -59,4 +59,23 @@ data <- add_count(data,station_start,station_end)
 ```
 \normalsize   
 
-       blahafhkd
+
+```{r}
+# top ride
+df <- data[data$station_start==31104 & data$station_end==31106,] %>%
+  group_by(days_since_Jan1_2010) %>%
+  summarize(mean_daily_duration = mean(duration), count=n(), day_of_week=day_of_week, member=member)
+
+ggplot(data=df, aes(x=days_since_Jan1_2010, y=mean_daily_duration)) +
+  geom_line() + ylim(c(0,1000))
+
+```
+
+```{r}
+routes <- data[,c('station_start', 'station_end')] %>% distinct()
+
+lm(duration ~ days_since_Jan1_2010 + day_of_week + member, data=data[data$station_start==31104 & data$station_end==31106,]) %>% summary()
+```
+
+
+       
