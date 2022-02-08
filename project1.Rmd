@@ -31,12 +31,16 @@ Christopher Tang
 **1**
 \small
 ```{r, eval = TRUE}
+library(dplyr)
+library(ggplot2)
 load("bikedata.RData")
 bikenum <- as.data.frame(bikenum); day_of_week <- as.data.frame(day_of_week)
 duration <- as.data.frame(duration); member <- as.data.frame(member)
 station_end <- as.data.frame(station_end); station_start <- as.data.frame(station_start)
 days_since_Jan1_2010 <- as.data.frame(days_since_Jan1_2010)
 data <- cbind(station_start,station_end,duration,member,bikenum,day_of_week,days_since_Jan1_2010 )
+data <- add_count(data,station_start,station_end)
+
 ```
 \normalsize
    \emph{(a)}     
