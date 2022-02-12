@@ -29,11 +29,12 @@ Christopher Tang
 
 
 **1**
-\small
 ```{r, eval = TRUE}
 library(dplyr)
 library(ggplot2)
-load("data/bikedata.RData")
+
+load("bikedata.RData")
+# format covariates into a single data frame for easy viewing
 bikenum <- as.data.frame(bikenum); day_of_week <- as.data.frame(day_of_week)
 duration <- as.data.frame(duration); member <- as.data.frame(member)
 station_end <- as.data.frame(station_end); station_start <- as.data.frame(station_start)
@@ -41,29 +42,16 @@ days_since_Jan1_2010 <- as.data.frame(days_since_Jan1_2010)
 data <- cbind(station_start,station_end,duration,member,bikenum,day_of_week,days_since_Jan1_2010 )
 data$ridename <- paste(station_start,' - ',station_end)
 data <- add_count(data,station_start,station_end)
-
 ```
 
 ```{r}
+# add weather covariates
 weather <- read.csv("WeatherData.csv")
 data <- left_join(data,weather,by='days_since_Jan1_2010')
 ```
-\normalsize
+
    \emph{(a)}     
        
-\small
-```{r, eval = TRUE}
-
-```
-\normalsize
-
-
-
-\small
-```{r, eval = TRUE}
-
-```
-\normalsize   
 
 
 ```{r}
@@ -74,10 +62,12 @@ df <- data[data$station_start==31104 & data$station_end==31106,] %>%
 
 ggplot(data=df, aes(x=days_since_Jan1_2010, y=mean_daily_duration)) +
   geom_line() + ylim(c(0,1000))
-
 ```
+The average daily duration oscillates over time very drastically, suggesting people happen to ride longer bike trips on certain days of the week.
+
 
 ```{r}
+
 routes <- data[data$n > 1000,][,c('station_start', 'station_end')] %>% distinct()
 route_pvals <- rep(NA, nrow(routes))
 route_coef <- rep(NA, nrow(routes))
