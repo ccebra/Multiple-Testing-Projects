@@ -41,7 +41,6 @@ days_since_Jan1_2010 <- as.data.frame(days_since_Jan1_2010)
 data <- cbind(station_start,station_end,duration,member,bikenum,day_of_week,days_since_Jan1_2010 )
 data$ridename <- paste(station_start,' - ',station_end)
 data <- add_count(data,station_start,station_end)
-
 ```
 
 ```{r}
@@ -77,25 +76,44 @@ ggplot(data=df, aes(x=days_since_Jan1_2010, y=mean_daily_duration)) +
 
 ```
 
+
+
+## Subset data and run regression on each ride and save p-vals + coefficients
 ```{r}
-routes <- data[data$n > 1000,][,c('station_start', 'station_end')] %>% distinct()
+# routes without infrequent rides
+routes <- data[data$n > 100,][,c('station_start', 'station_end')] %>% distinct()
+
 route_pvals <- rep(NA, nrow(routes))
 route_coef <- rep(NA, nrow(routes))
+
+fit_list <- vector(mode = "list", length = nrow(routes))
 for (r in 1:nrow(routes)) {
-  fit <- lm(duration ~ days_since_Jan1_2010 + day_of_week + member + TMAX + PRCP,
-     data=data[data$station_start==routes[r,]$station_start & data$station_end==routes[r,]$station_end,])
+  # remove outlier rides > 3 sd away from route mean
+  route_data <- data[data$station_start==routes[r,]$station_start & data$station_end==routes[r,]$station_end,]
+  upper_cutoff <- mean(route_data$duration) + 3 * sd(route_data$duration)
+  lower_cutoff <- mean(route_data$duration) - 3 * sd(route_data$duration)
+  route_data <- route_data[route_data$duration < upper_cutoff & route_data$duration > lower_cutoff,]
+  
+  # run regression of route 
+  fit <- lm(duration ~ days_since_Jan1_2010 + day_of_week + member + TMAX + PRCP, data=route_data)
   pval <- summary(fit)$coefficients[,4]['days_since_Jan1_2010']
   coef <- summary(fit)$coefficients[,1]['days_since_Jan1_2010']
   route_pvals[r] <- pval
   route_coef[r] <- coef
+  fit_list[[r]] <- fit
 }
 ```
 
 ```{r}
-# routes w/ p val lower 0.05/1000
-print(routes[which(route_pvals < 0.05/1000),])
+save('fit_list', 'route_pvals', 'route_coef', file="data/regression_out.RData")
+```
 
-print(route_coef[which(route_pvals < 0.05/1000)])
+
+```{r}
+# routes w/ p val lower boferonni at alpha= 0.05
+print(routes[which(route_pvals < 0.05/length(route_pvals)),])
+
+print(route_coef[which(route_pvals < 0.05/length(route_pvals))])
 # stations[stations[,1] == 31011]
 # stations[stations[,1] == 31007]
 # stations[stations[,1] == 31217]
@@ -111,6 +129,8 @@ df <- data[data$station_start==31200 & data$station_end==31225,] %>%
 
 ggplot(data=df, aes(x=days_since_Jan1_2010, y=mean_daily_duration)) +
   geom_line() #+ ylim(c(0,5000))
+
+# looks like outlier
 ```
 
 
