@@ -107,17 +107,27 @@ print(route_coef[which(route_pvals < 0.05/length(route_pvals))])
 # stations[stations[,1] == 31235]
 # stations[stations[,1] == 31200]
 # stations[stations[,1] == 31225]
+
+mindex <- which.min(route_pvals)
+summary(fit_list[[mindex]])
 ```
 
 ```{r}
-df <- data_weather[data_weather$station_start==31200 & data_weather$station_end==31225,] %>%
+route <- routes[mindex,]
+route_data <- data_weather[data_weather$station_start==route$station_start & data_weather$station_end==route$station_end,]
+upper_cutoff <- mean(route_data$duration) + 3 * sd(route_data$duration)
+lower_cutoff <- mean(route_data$duration) - 3 * sd(route_data$duration)
+route_data <- route_data[route_data$duration < upper_cutoff & route_data$duration > lower_cutoff,]
+
+route_data['duration_resid'] <- resid(lm(duration ~ day_of_week + member + TMAX + PRCP, data=route_data))
+
+df <- route_data %>%
   group_by(days_since_Jan1_2010) %>%
-  summarize(mean_daily_duration = mean(duration), count=n(), day_of_week=day_of_week, member=member)
+  summarize(mean_daily_duration_residualized = mean(duration_resid), count=n(), day_of_week=day_of_week, member=member)
 
-ggplot(data=df, aes(x=days_since_Jan1_2010, y=mean_daily_duration)) +
-  geom_line() #+ ylim(c(0,5000))
+ggplot(data=df, aes(x=days_since_Jan1_2010, y=mean_daily_duration_residualized)) +
+  geom_line() + geom_smooth(method='lm', formula=y~x) #+ ylim(c(0,5000))
 
-# looks like outlier
 ```
 
 
