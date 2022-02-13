@@ -92,27 +92,73 @@ for (r in 1:nrow(routes)) {
 ```
 
 ```{r}
-save('fit_list', 'route_pvals', 'route_coef', file="data/regression_out.RData")
+#save('fit_list', 'route_pvals', 'route_coef', file="data/regression_out.RData")
 ```
 
-
+## Bonferroni significance table
 ```{r}
 # routes w/ p val lower boferonni at alpha= 0.05
-print(routes[which(route_pvals < 0.05/length(route_pvals)),])
+get_sig_table <- function(sig_ind) {
+  sig_routes <- routes[sig_ind,]
+  sig_fits <- fit_list[sig_ind]
+  sig_pval <- as.numeric(lapply(sig_fits, function(x) {summary(x)$coefficients[,4]['days_since_Jan1_2010']}))
+  sig_coef <- as.numeric(lapply(sig_fits, function(x) {summary(x)$coefficients[,1]['days_since_Jan1_2010']}))
+  sig_sd <- as.numeric(lapply(sig_fits, function(x) {summary(x)$coefficients[,2]['days_since_Jan1_2010']}))
+  sig_df <- cbind(sig_routes, sig_coef, sig_sd, sig_pval)
+  names(sig_df) <- c('station_start', 'station_end', 'Beta_hat', 'std_error', 'pvalue')
+  sig_df <- sig_df[order(sig_df$pvalue),]
+}
 
-print(route_coef[which(route_pvals < 0.05/length(route_pvals))])
-# stations[stations[,1] == 31011]
-# stations[stations[,1] == 31007]
-# stations[stations[,1] == 31217]
-# stations[stations[,1] == 31235]
-# stations[stations[,1] == 31200]
-# stations[stations[,1] == 31225]
+sig_bonferonni <- get_sig_table(which(route_pvals < 0.05/length(route_pvals)))
+print(sig_bonferonni)
+```
+## BH Significance Table
+```{r}
+# same table as above but for BH
+runBH <- function(P, alpha, gamma, runStorey=TRUE) {
+  n <- length(P)
+  P_squiggle <- rep(NA, n)
+  # calculate Storey modified P
+  if (runStorey) {
+    pi0 <- sum(P > gamma) / (n * (1-gamma))
+    pi0 <- if (pi0 > 1) 1 else pi0 # cap pi0 at 1
+    P_squiggle <- P * pi0
+  } else {
+    P_squiggle <- P
+  }
+  reject_vec <- rep(0, n)
+  # run BH
+  k_hat <- 0
+  P_squiggle_sort <- sort(P_squiggle, index.return=T)
+  for (k in 1:n) {
+    p_index <- P_squiggle_sort$ix[k]
+    if (P_squiggle_sort$x[k] <= alpha*k/n && P[p_index] <= gamma) {
+      k_hat <- k
+    }
+  }
+  if (k_hat != 0) {
+    reject_indices <- P_squiggle_sort$ix[1:k_hat]
+    reject_vec[reject_indices] <- 1
+  }
+  reject_vec
+}
 
-mindex <- which.min(route_pvals)
-summary(fit_list[[mindex]])
+# run standard BH
+route_rejects_standard <- runBH(route_pvals, alpha=0.05, gamma=0.5, runStorey=F)
+sig_BH <- get_sig_table(which(route_rejects_standard==1))
+print(sig_BH)
+
+# run on our pvalues w/ Storey correction
+route_rejects_storey <- runBH(route_pvals, alpha=0.05, gamma=0.5, runStorey=T)
+sig_storeyBH <- get_sig_table(which(route_rejects_storey==1))
+print(sig_storeyBH)
 ```
 
+
+
 ```{r}
+# plot most significant route duration over time with duration corrected for covariates
+mindex <- which.min(route_pvals)
 route <- routes[mindex,]
 route_data <- data_weather[data_weather$station_start==route$station_start & data_weather$station_end==route$station_end,]
 upper_cutoff <- mean(route_data$duration) + 3 * sd(route_data$duration)
