@@ -131,5 +131,16 @@ ggplot(data=df, aes(x=days_since_Jan1_2010, y=mean_daily_duration_residualized))
 ```
 
 
+```{r}
+# get geographical data (lat & long) regarding stations
+locData <- read.csv("https://gist.githubusercontent.com/since1968/e51c0f3d95e67bf49f74/raw/37a6c381df119b7463c8fd33fdfaa06427d9794f/bikeStations.csv")
+colnames(stations) <- c("terminalName","locations")
+
+#take those with matching terminalNames
+newStations<-merge(x=stations,y=locData,by="terminalName",all.x=TRUE)
+
+```
+
+
 
        
