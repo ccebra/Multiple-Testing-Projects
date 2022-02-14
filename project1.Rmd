@@ -69,20 +69,21 @@ The average daily duration oscillates over time very drastically, suggesting peo
 ## Subset data and run regression on each ride and save p-vals + coefficients
 ```{r}
 # routes without infrequent rides
-routes <- data_weather[data_weather$n > 100,][,c('station_start', 'station_end')] %>% distinct()
+routes <- data_weather[data_weather$n > 100,][,c('station_start', 'station_end')] %>% distinct() # mention problematic
 route_pvals <- rep(NA, nrow(routes))
 route_coef <- rep(NA, nrow(routes))
+
 
 fit_list <- vector(mode = "list", length = nrow(routes))
 for (r in 1:nrow(routes)) {
   # remove outlier rides > 3 sd away from route mean
   route_data <- data_weather[data_weather$station_start==routes[r,]$station_start & data_weather$station_end==routes[r,]$station_end,]
-  upper_cutoff <- mean(route_data$duration) + 3 * sd(route_data$duration)
+  upper_cutoff <- mean(route_data$duration) + 3 * sd(route_data$duration) # mention data dependent
   lower_cutoff <- mean(route_data$duration) - 3 * sd(route_data$duration)
   route_data <- route_data[route_data$duration < upper_cutoff & route_data$duration > lower_cutoff,]
   
   # run regression of route 
-  fit <- lm(duration ~ days_since_Jan1_2010 + day_of_week + member + TMAX + PRCP, data=route_data)
+  fit <- lm(duration ~ days_since_Jan1_2010 + day_of_week + member + TMAX + PRCP, data=route_data) # linear regression assumptions
   pval <- summary(fit)$coefficients[,4]['days_since_Jan1_2010']
   coef <- summary(fit)$coefficients[,1]['days_since_Jan1_2010']
   route_pvals[r] <- pval
@@ -188,5 +189,8 @@ newStations<-merge(x=stations,y=locData,by="terminalName",all.x=TRUE)
 ```
 
 
+## Permutation test
+if null, permutation doesnt change dist
+- if confounding, permutation can change -> deal with this
 
        
