@@ -179,13 +179,24 @@ ggplot(data=df, aes(x=days_since_Jan1_2010, y=mean_daily_duration_residualized))
 
 
 ```{r}
-# get geographical data (lat & long) regarding stations
+# find source for geographical data (lat & long) regarding stations
 locData <- read.csv("https://gist.githubusercontent.com/since1968/e51c0f3d95e67bf49f74/raw/37a6c381df119b7463c8fd33fdfaa06427d9794f/bikeStations.csv")
 colnames(stations) <- c("terminalName","locations")
 
-#take those with matching terminalNames
+#take those with matching terminalName
 newStations<-merge(x=stations,y=locData,by="terminalName",all.x=TRUE)
+newStations<-newStations[, c("terminalName", "locations", "lat", "long")]
+```
 
+After the merge, some of the locations do not match (excluding those wherein the order of the street names were simply switched such as "Pentagon City Metro / 12th & S Hayes St" vs "12th & Hayes St /  Pentagon City Metro"). For these pairs of locations that do not match at all, we resorted to verifying the latitude and longitude for the location listed in `stations`, a data object provided from the Group Project 1 instructions. Latitude and longitude for these locations were gathered from inputting location names into Google Maps.
+
+The 5 terminals with different locations are: 31000, 31500, 31302, 31609, 31239
+```{r}
+newStations[1,3] <- 38.85979; newStations[1,4] <- -77.05357
+newStations[78,3] <- 38.90567; newStations[78,4] <- -77.04120 
+newStations[1,3] <- 38.93465; newStations[1,4] <--77.07246
+newStations[1,3] <- 38.91930; newStations[1,4] <- -77.00056
+newStations[1,3] <- 38.87863; newStations[1,4] <- -77.02283
 ```
 
 
