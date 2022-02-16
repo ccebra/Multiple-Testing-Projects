@@ -6,7 +6,7 @@ output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE, echo = TRUE)
 ```
 
 ## Maps
@@ -128,8 +128,8 @@ BHtopmap <- ggmap(get_stamenmap(bbox, zoom = 13)) +
         plot.title=element_text(hjust=0.5, size=12)) +
   coord_cartesian(ylim=c(38.85, 38.95), xlim=c(-77.1, -76.95)) +
   ggtitle("BH Procedure 50 Most Significant Routes")
-BHmap
-BHtopmap
+#BHmap
+#BHtopmap
 ```
 ```{r plot BH inverse maps}
 BHinvmap <- ggmap(get_stamenmap(bbox, zoom = 13)) +
@@ -189,8 +189,8 @@ BHinvtopmap <- ggmap(get_stamenmap(bbox, zoom = 13)) +
         plot.title=element_text(hjust=0.5, size=12)) +
   coord_cartesian(ylim=c(38.85, 38.95), xlim=c(-77.1, -76.95)) +
   ggtitle("BH Inverse Procedure 50 Most Significant Routes")
-BHinvmap
-BHinvtopmap
+#BHinvmap
+#BHinvtopmap
 ```
 
 ```{r plot Storey maps}
@@ -251,8 +251,8 @@ Storeytopmap <- ggmap(get_stamenmap(bbox, zoom = 13)) +
         plot.title=element_text(hjust=0.5, size=12)) +
   coord_cartesian(ylim=c(38.85, 38.95), xlim=c(-77.1, -76.95)) +
   ggtitle("Storey BH Procedure 50 Most Significant Routes")
-Storeymap
-Storeytopmap
+#Storeymap
+#Storeytopmap
 ```
 
 ```{r plot BH Storey inverse maps}
@@ -313,6 +313,18 @@ Storeyinvtopmap <- ggmap(get_stamenmap(bbox, zoom = 13)) +
         plot.title=element_text(hjust=0.5, size=12)) +
   coord_cartesian(ylim=c(38.85, 38.95), xlim=c(-77.1, -76.95)) +
   ggtitle("Storey BH Inverse Procedure 50 Most Significant Routes")
+#Storeyinvmap
+#Storeyinvtopmap
+```
+
+```{r place maps side by side}
+par(mfrow=c(4,2))
+BHmap
+BHtopmap
+BHinvmap
+BHinvtopmap
+Storeymap
+Storeytopmap
 Storeyinvmap
 Storeyinvtopmap
 ```
