@@ -107,11 +107,42 @@ for (r in 1:nrow(routes)) {
 
 ## Plotting regression assumptions on randomly sampled data
 ```{r}
+set.seed(123)
+samples <- round(runif(3, 0, nrow(routes)))
 # plot standard fit 1
 par(mfrow = c(2, 2))
+
+# 3 randomly sampled routes
+plot(fit_list[[samples[1]]])
+plot(fit_list_inverse[[samples[1]]])
+route_data <- get_route_data(routes[samples[1],]$station_start, routes[samples[1],]$station_end)
+a <- fastDummies::dummy_cols(route_data, select_columns="day_of_week")
+ggcorrplot::ggcorrplot(cor(a %>% 
+                             select(duration, days_since_Jan1_2010, member, day_of_week_Monday, 
+                                    day_of_week_Tuesday, day_of_week_Wednesday, day_of_week_Thursday,
+                                    day_of_week_Friday, day_of_week_Saturday, day_of_week_Sunday, PRCP, TMAX)))
+
+plot(fit_list[[samples[2]]])
+plot(fit_list_inverse[[samples[2]]])
+route_data <- get_route_data(routes[samples[2],]$station_start, routes[samples[2],]$station_end)
+a <- fastDummies::dummy_cols(route_data, select_columns="day_of_week")
+ggcorrplot::ggcorrplot(cor(a %>% 
+                             select(duration, days_since_Jan1_2010, member, day_of_week_Monday, 
+                                    day_of_week_Tuesday, day_of_week_Wednesday, day_of_week_Thursday,
+                                    day_of_week_Friday, day_of_week_Saturday, day_of_week_Sunday, PRCP, TMAX)))
+
+plot(fit_list[[samples[3]]])
+plot(fit_list_inverse[[samples[3]]])
+route_data <- get_route_data(routes[samples[3],]$station_start, routes[samples[3],]$station_end)
+a <- fastDummies::dummy_cols(route_data, select_columns="day_of_week")
+ggcorrplot::ggcorrplot(cor(a %>% 
+                             select(duration, days_since_Jan1_2010, member, day_of_week_Monday, 
+                                    day_of_week_Tuesday, day_of_week_Wednesday, day_of_week_Thursday,
+                                    day_of_week_Friday, day_of_week_Saturday, day_of_week_Sunday, PRCP, TMAX)))
+
+# route 1
 plot(fit_list[[1]])
 plot(fit_list_inverse[[1]])
-
 route_data <- get_route_data(routes[1,]$station_start, routes[1,]$station_end)
 a <- fastDummies::dummy_cols(route_data, select_columns="day_of_week")
 ggcorrplot::ggcorrplot(cor(a %>% 
@@ -123,21 +154,30 @@ ggcorrplot::ggcorrplot(cor(a %>%
 ## Residuals autocorrelation with DW statistic across all models fitted
 ```{r}
 DW_standard <- as.numeric(lapply(1:nrow(routes), function(r) {
-  olsrr::ols_test_score(fit_list[[r]])$p
+  car::durbinWatsonTest(fit_list[[r]])$p
 }))
 
 DW_inverse <- as.numeric(lapply(1:nrow(routes), function(r) {
-  olsrr::ols_test_score(fit_list_inverse[[r]])$p
+  car::durbinWatsonTest(fit_list_inverse[[r]])$p
 }))
 
 ```
 ```{r}
+df <- as.data.frame(DW_standard)
+colnames(df) <- c("DW_p_val")
+p1 <- ggplot(data=df, aes(x=DW_p_val)) + geom_histogram() + ylim(c(0,1750))
 
+df <- as.data.frame(DW_inverse)
+colnames(df) <- c("DW_p_val")
+p2 <- ggplot(data=df, aes(x=DW_p_val)) + geom_histogram() + ylim(c(0,1750))
+
+cowplot::plot_grid(p1, p2, labels = c("Standard", "Inverse"))
 ```
 
 
 ## Score test for heteroskedasticity across all models fitted
 ```{r}
+# note: iid assumption violated, maybe try other test like Breusch-Pagan
 score_standard <- as.numeric(lapply(1:nrow(routes), function(r) {
   olsrr::ols_test_score(fit_list[[r]])$p
 }))
@@ -148,7 +188,6 @@ score_inverse <- as.numeric(lapply(1:nrow(routes), function(r) {
 
 ```
 ```{r}
-par(mfrow=c(2,1))
 df <- as.data.frame(score_standard)
 colnames(df) <- c("score_p_val")
 p1 <- ggplot(data=df, aes(x=score_p_val)) + geom_histogram() + ylim(c(0,2800))
@@ -160,16 +199,27 @@ p2 <- ggplot(data=df, aes(x=score_p_val)) + geom_histogram() + ylim(c(0,2800))
 cowplot::plot_grid(p1, p2, labels = c("Standard", "Inverse"))
 ```
 
-## Normality with Kolmogorov-Smirnov test
+## Normality with Shapiro Wilks test
 ```{r}
-# plot inverse fit 1
-ks.test(fit_list_inverse[[1]]$residuals, "pnorm", mean=mean(fit_list_inverse[[1]]$residuals), sd=sd(fit_list_inverse[[1]]$residuals))
+shapiro_standard <- as.numeric(lapply(1:nrow(routes), function(r) {
+  shapiro.test(fit_list[[r]]$residuals)$p.value
+}))
 
-ks.test(fit_list[[1]]$residuals, "pnorm", mean=mean(fit_list[[1]]$residuals), sd=sd(fit_list[[1]]$residuals))
+shapiro_inverse <- as.numeric(lapply(1:nrow(routes), function(r) {
+  shapiro.test(fit_list_inverse[[r]]$residuals)$p.value
+}))
 
 ```
 ```{r}
+df <- as.data.frame(shapiro_standard)
+colnames(df) <- c("shapiro_p_val")
+p1 <- ggplot(data=df, aes(x=shapiro_p_val)) + geom_histogram() + ylim(c(0,3500))
 
+df <- as.data.frame(shapiro_inverse)
+colnames(df) <- c("shapiro_p_val")
+p2 <- ggplot(data=df, aes(x=shapiro_p_val)) + geom_histogram() + ylim(c(0,3500))
+
+cowplot::plot_grid(p1, p2, labels = c("Standard", "Inverse"))
 ```
 
 
@@ -208,7 +258,7 @@ print(sig_bonferonni)
 ## BH Significance Table
 ```{r}
 # same table as above but for BH
-runBH <- function(P, alpha, gamma, runStorey=TRUE) {
+runBH <- function(P, alpha, gamma, runStorey=TRUE, return_p=F) {
   n <- length(P)
   P_squiggle <- rep(NA, n)
   # calculate Storey modified P
@@ -233,32 +283,41 @@ runBH <- function(P, alpha, gamma, runStorey=TRUE) {
     reject_indices <- P_squiggle_sort$ix[1:k_hat]
     reject_vec[reject_indices] <- 1
   }
-  reject_vec
+  if (!return_p) {
+    return(reject_vec)
+  }
+  else {
+    return(P_squiggle)
+  }
 }
 
 # run standard BH
 route_rejects_standard <- runBH(route_pvals, alpha=0.05, gamma=0.5, runStorey=F)
+route_rejects_standard_pval <- runBH(route_pvals, alpha=0.05, gamma=0.5, runStorey=F, return_p=T)
 sig_BH <- get_sig_table(which(route_rejects_standard==1))
 print(sig_BH)
 
 # run on our pvalues w/ Storey correction
 route_rejects_storey <- runBH(route_pvals, alpha=0.05, gamma=0.5, runStorey=T)
+route_rejects_storey_pval <- runBH(route_pvals, alpha=0.05, gamma=0.5, runStorey=T, return_p=T)
 sig_storeyBH <- get_sig_table(which(route_rejects_storey==1))
 print(sig_storeyBH)
 
 # run standard BH on inverse transformation
 route_rejects_standard_inverse <- runBH(route_pvals_inverse, alpha=0.05, gamma=0.5, runStorey=F)
+route_rejects_standard_inverse_pval <- runBH(route_pvals_inverse, alpha=0.05, gamma=0.5, runStorey=F, return_p=T)
 sig_BH_inverse <- get_sig_table(which(route_rejects_standard_inverse==1), inverse=T)
 print(sig_BH_inverse)
 
 # run on our pvalues w/ Storey correction on inverse information
 route_rejects_storey_inverse <- runBH(route_pvals_inverse, alpha=0.05, gamma=0.5, runStorey=T)
+route_rejects_storey_inverse_pval <- runBH(route_pvals_inverse, alpha=0.05, gamma=0.5, runStorey=T, return_p=T)
 sig_storeyBH_inverse <- get_sig_table(which(route_rejects_storey_inverse==1), inverse=T)
 print(sig_storeyBH_inverse)
 ```
 
 ```{r}
-#save('route_rejects_standard', 'route_rejects_storey', 'route_rejects_standard_inverse', 'route_rejects_storey_inverse', file="data/rejections.RData")
+#save('routes', 'route_rejects_standard', 'route_rejects_storey', 'route_rejects_standard_inverse', 'route_rejects_storey_inverse', 'sig_BH', 'sig_storeyBH', 'sig_BH_inverse', 'sig_storeyBH_inverse', file="data/rejections.RData")
 ```
 
 
@@ -322,10 +381,8 @@ newStations[1,3] <- 38.87863; newStations[1,4] <- -77.02283
 ## Inverse transformation
 
 ```{r}
-
 # test regression transformations 
 route_data <- get_route_data(routes[1,]$station_start, routes[1,]$station_end)
-
 
 # route_data <- data_weather[data_weather$station_start==routes[1,]$station_start & data_weather$station_end==routes[1,]$station_end,]
 # upper_cutoff <- mean(route_data$duration) + 3 * sd(route_data$duration) # mention data dependent
@@ -344,10 +401,24 @@ par(mfrow = c(2, 2))
 plot(new_fit)
 ```
 
-
-
 ## Permutation test
 if null, permutation doesnt change dist
 - if confounding, permutation can change -> deal with this
+- permute duration within groups of member, day of week, binned temperature, binned precipitation
+
+TODO:
+- create binned temperature and binned precip vars
+  - TMAX: 
+  - PCRP: 
+- for each route, permute durations within group of member, day of week, binned temp, binned precip
+  - make sure to print size of each group: if only one or few obs of a specific, cut at higher than 100
+- if computationally suck, identify routes that show increase or decrease
+
+
+```{r}
+
+```
+
+
 
        
