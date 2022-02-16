@@ -407,17 +407,61 @@ if null, permutation doesnt change dist
 - permute duration within groups of member, day of week, binned temperature, binned precipitation
 
 TODO:
-- create binned temperature and binned precip vars
-  - TMAX: 
-  - PCRP: 
+TMAX_bins: 
 - for each route, permute durations within group of member, day of week, binned temp, binned precip
   - make sure to print size of each group: if only one or few obs of a specific, cut at higher than 100
 - if computationally suck, identify routes that show increase or decrease
 
+## Create binned temp and precip quartiles
+```{r}
+data_weather['TMAX_quartile'] <- ntile(data_weather$TMAX, 4)
+data_weather['PRCP_none'] <- as.numeric(data_weather$PRCP == 0)
+data_weather['PRCP_little'] <- as.numeric(data_weather$PRCP < 0.3 & data_weather$PRCP > 0)
+data_weather['PRCP_big'] <- as.numeric(data_weather$PRCP > 0.3)
+data_weather <- fastDummies::dummy_cols(data_weather, select_columns=c("TMAX_quartile"))
+```
+
+
+## For every route, permute durations by covariate group and see if distribution changes
+```{r}
+pvals_permtest <- rep(NA, nrow(routes))
+n_perm <- 100
+
+# permutation test on correlation between duration and days since
+for (r in 1:nrow(routes)) {
+  route_data <- get_route_data(routes[r,]$station_start, routes[r,]$station_end)
+  # observed test statistic (pearson correlation)
+  T_obs <- cor(route_data$duration, route_data$days_since_Jan1_2010)
+  neg <- if (T_obs > 0) F else T
+  # permute to get estimates of null dist
+  T_perms <- rep(NA, n_perm)
+  for (i in 1:n_perm) {
+    duration_perm <- sample(nrow(route_data), nrow(route_data), )
+    
+    # permute by covariates
+    route_data_perm <- route_data %>% 
+      group_by(member, day_of_week, TMAX_quartile, PRCP_none, PRCP_little, PRCP_big) %>%
+      mutate(duration_perm = if(n() == 1) duration else sample(duration, n()))
+    
+    T_perms[i] <- cor(route_data_perm$duration_perm, route_data$days_since_Jan1_2010)
+  }
+  pvals_permtest[r] <- if (neg) (1 + sum(T_perms < T_obs)) / (1 + n_perm) else (1 + sum(T_perms > T_obs)) / (1 + n_perm)
+  if (r %% 50 == 0) {
+    print(r)
+  }
+}
+```
 
 ```{r}
 
 ```
+
+
+
+
+
+
+
 
 
 
