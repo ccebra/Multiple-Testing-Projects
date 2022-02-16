@@ -131,3 +131,188 @@ BHtopmap <- ggmap(get_stamenmap(bbox, zoom = 13)) +
 BHmap
 BHtopmap
 ```
+```{r plot BH inverse maps}
+BHinvmap <- ggmap(get_stamenmap(bbox, zoom = 13)) +
+  geom_curve(data=routes_BH_inv,
+             aes(x=long.x, y=lat.x, xend=long.y, yend=lat.y),
+             col="#00008b",
+             size=.2,
+             curvature=0.2) +
+  geom_curve(data=routes_BH_inv_top,
+             aes(x=long.x, y=lat.x, xend=long.y, yend=lat.y),
+             col="#8b0000",
+             size=.2,
+             curvature=0.2) +
+  geom_point(data=routes_BH_inv,
+             aes(x=long.x, y=lat.x),
+             colour="blue",
+             size=0.2) +
+  geom_point(data=routes_BH_inv,
+             aes(x=long.y, y=lat.y),
+             colour="blue", size=0.2) +
+  geom_point(data=routes_BH_inv_top,
+             aes(x=long.x, y=lat.x),
+             colour="red",
+             size=0.2) +
+  geom_point(data=routes_BH_inv_top,
+             aes(x=long.y, y=lat.y),
+             colour="red", size=0.2) +
+  theme(axis.line=element_blank(),
+        axis.text.x=element_blank(),
+        axis.text.y=element_blank(),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.ticks=element_blank(),
+        plot.title=element_text(hjust=0.5, size=12)) +
+  coord_cartesian(ylim=c(38.85, 38.95), xlim=c(-77.1, -76.95)) +
+  ggtitle("BH Inverse Procedure Significant Routes")
+
+BHinvtopmap <- ggmap(get_stamenmap(bbox, zoom = 13)) +
+  geom_curve(data=routes_BH_inv_top,
+             aes(x=long.x, y=lat.x, xend=long.y, yend=lat.y),
+             col="#8b0000",
+             size=1.7,
+             curvature=0.2) +
+  geom_point(data=routes_BH_inv_top,
+             aes(x=long.x, y=lat.x),
+             colour="red",
+             size=1.7) +
+  geom_point(data=routes_BH_inv_top,
+             aes(x=long.y, y=lat.y),
+             colour="red", size=1.7) +
+  theme(axis.line=element_blank(),
+        axis.text.x=element_blank(),
+        axis.text.y=element_blank(),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.ticks=element_blank(),
+        plot.title=element_text(hjust=0.5, size=12)) +
+  coord_cartesian(ylim=c(38.85, 38.95), xlim=c(-77.1, -76.95)) +
+  ggtitle("BH Inverse Procedure 50 Most Significant Routes")
+BHinvmap
+BHinvtopmap
+```
+
+```{r plot Storey maps}
+Storeymap <- ggmap(get_stamenmap(bbox, zoom = 13)) +
+  geom_curve(data=routes_Storey,
+             aes(x=long.x, y=lat.x, xend=long.y, yend=lat.y),
+             col="#00008b",
+             size=.2,
+             curvature=0.2) +
+  geom_curve(data=routes_Storey_top,
+             aes(x=long.x, y=lat.x, xend=long.y, yend=lat.y),
+             col="#8b0000",
+             size=.2,
+             curvature=0.2) +
+  geom_point(data=routes_Storey,
+             aes(x=long.x, y=lat.x),
+             colour="blue",
+             size=0.2) +
+  geom_point(data=routes_Storey,
+             aes(x=long.y, y=lat.y),
+             colour="blue", size=0.2) +
+  geom_point(data=routes_Storey_top,
+             aes(x=long.x, y=lat.x),
+             colour="red",
+             size=0.2) +
+  geom_point(data=routes_Storey_top,
+             aes(x=long.y, y=lat.y),
+             colour="red", size=0.2) +
+  theme(axis.line=element_blank(),
+        axis.text.x=element_blank(),
+        axis.text.y=element_blank(),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.ticks=element_blank(),
+        plot.title=element_text(hjust=0.5, size=12)) +
+  coord_cartesian(ylim=c(38.85, 38.95), xlim=c(-77.1, -76.95)) +
+  ggtitle("Storey BH Procedure Significant Routes")
+
+Storeytopmap <- ggmap(get_stamenmap(bbox, zoom = 13)) +
+  geom_curve(data=routes_Storey_top,
+             aes(x=long.x, y=lat.x, xend=long.y, yend=lat.y),
+             col="#8b0000",
+             size=1.7,
+             curvature=0.2) +
+  geom_point(data=routes_Storey_top,
+             aes(x=long.x, y=lat.x),
+             colour="red",
+             size=1.7) +
+  geom_point(data=routes_Storey_top,
+             aes(x=long.y, y=lat.y),
+             colour="red", size=1.7) +
+  theme(axis.line=element_blank(),
+        axis.text.x=element_blank(),
+        axis.text.y=element_blank(),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.ticks=element_blank(),
+        plot.title=element_text(hjust=0.5, size=12)) +
+  coord_cartesian(ylim=c(38.85, 38.95), xlim=c(-77.1, -76.95)) +
+  ggtitle("Storey BH Procedure 50 Most Significant Routes")
+Storeymap
+Storeytopmap
+```
+
+```{r plot BH Storey inverse maps}
+Storeyinvmap <- ggmap(get_stamenmap(bbox, zoom = 13)) +
+  geom_curve(data=routes_Storey_inv,
+             aes(x=long.x, y=lat.x, xend=long.y, yend=lat.y),
+             col="#00008b",
+             size=.2,
+             curvature=0.2) +
+  geom_curve(data=routes_Storey_inv_top,
+             aes(x=long.x, y=lat.x, xend=long.y, yend=lat.y),
+             col="#8b0000",
+             size=.2,
+             curvature=0.2) +
+  geom_point(data=routes_Storey_inv,
+             aes(x=long.x, y=lat.x),
+             colour="blue",
+             size=0.2) +
+  geom_point(data=routes_Storey_inv,
+             aes(x=long.y, y=lat.y),
+             colour="blue", size=0.2) +
+  geom_point(data=routes_Storey_inv_top,
+             aes(x=long.x, y=lat.x),
+             colour="red",
+             size=0.2) +
+  geom_point(data=routes_Storey_inv_top,
+             aes(x=long.y, y=lat.y),
+             colour="red", size=0.2) +
+  theme(axis.line=element_blank(),
+        axis.text.x=element_blank(),
+        axis.text.y=element_blank(),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.ticks=element_blank(),
+        plot.title=element_text(hjust=0.5, size=12)) +
+  coord_cartesian(ylim=c(38.85, 38.95), xlim=c(-77.1, -76.95)) +
+  ggtitle("Storey BH Inverse Procedure Significant Routes")
+
+Storeyinvtopmap <- ggmap(get_stamenmap(bbox, zoom = 13)) +
+  geom_curve(data=routes_Storey_inv_top,
+             aes(x=long.x, y=lat.x, xend=long.y, yend=lat.y),
+             col="#8b0000",
+             size=1.7,
+             curvature=0.2) +
+  geom_point(data=routes_Storey_inv_top,
+             aes(x=long.x, y=lat.x),
+             colour="red",
+             size=1.7) +
+  geom_point(data=routes_Storey_inv_top,
+             aes(x=long.y, y=lat.y),
+             colour="red", size=1.7) +
+  theme(axis.line=element_blank(),
+        axis.text.x=element_blank(),
+        axis.text.y=element_blank(),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.ticks=element_blank(),
+        plot.title=element_text(hjust=0.5, size=12)) +
+  coord_cartesian(ylim=c(38.85, 38.95), xlim=c(-77.1, -76.95)) +
+  ggtitle("Storey BH Inverse Procedure 50 Most Significant Routes")
+Storeyinvmap
+Storeyinvtopmap
+```
