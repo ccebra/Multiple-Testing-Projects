@@ -107,11 +107,42 @@ for (r in 1:nrow(routes)) {
 
 ## Plotting regression assumptions on randomly sampled data
 ```{r}
+set.seed(123)
+samples <- round(runif(3, 0, nrow(routes)))
 # plot standard fit 1
 par(mfrow = c(2, 2))
+
+# 3 randomly sampled routes
+plot(fit_list[[samples[1]]])
+plot(fit_list_inverse[[samples[1]]])
+route_data <- get_route_data(routes[samples[1],]$station_start, routes[samples[1],]$station_end)
+a <- fastDummies::dummy_cols(route_data, select_columns="day_of_week")
+ggcorrplot::ggcorrplot(cor(a %>% 
+                             select(duration, days_since_Jan1_2010, member, day_of_week_Monday, 
+                                    day_of_week_Tuesday, day_of_week_Wednesday, day_of_week_Thursday,
+                                    day_of_week_Friday, day_of_week_Saturday, day_of_week_Sunday, PRCP, TMAX)))
+
+plot(fit_list[[samples[2]]])
+plot(fit_list_inverse[[samples[2]]])
+route_data <- get_route_data(routes[samples[2],]$station_start, routes[samples[2],]$station_end)
+a <- fastDummies::dummy_cols(route_data, select_columns="day_of_week")
+ggcorrplot::ggcorrplot(cor(a %>% 
+                             select(duration, days_since_Jan1_2010, member, day_of_week_Monday, 
+                                    day_of_week_Tuesday, day_of_week_Wednesday, day_of_week_Thursday,
+                                    day_of_week_Friday, day_of_week_Saturday, day_of_week_Sunday, PRCP, TMAX)))
+
+plot(fit_list[[samples[3]]])
+plot(fit_list_inverse[[samples[3]]])
+route_data <- get_route_data(routes[samples[3],]$station_start, routes[samples[3],]$station_end)
+a <- fastDummies::dummy_cols(route_data, select_columns="day_of_week")
+ggcorrplot::ggcorrplot(cor(a %>% 
+                             select(duration, days_since_Jan1_2010, member, day_of_week_Monday, 
+                                    day_of_week_Tuesday, day_of_week_Wednesday, day_of_week_Thursday,
+                                    day_of_week_Friday, day_of_week_Saturday, day_of_week_Sunday, PRCP, TMAX)))
+
+# route 1
 plot(fit_list[[1]])
 plot(fit_list_inverse[[1]])
-
 route_data <- get_route_data(routes[1,]$station_start, routes[1,]$station_end)
 a <- fastDummies::dummy_cols(route_data, select_columns="day_of_week")
 ggcorrplot::ggcorrplot(cor(a %>% 
@@ -123,21 +154,30 @@ ggcorrplot::ggcorrplot(cor(a %>%
 ## Residuals autocorrelation with DW statistic across all models fitted
 ```{r}
 DW_standard <- as.numeric(lapply(1:nrow(routes), function(r) {
-  olsrr::ols_test_score(fit_list[[r]])$p
+  car::durbinWatsonTest(fit_list[[r]])$p
 }))
 
 DW_inverse <- as.numeric(lapply(1:nrow(routes), function(r) {
-  olsrr::ols_test_score(fit_list_inverse[[r]])$p
+  car::durbinWatsonTest(fit_list_inverse[[r]])$p
 }))
 
 ```
 ```{r}
+df <- as.data.frame(DW_standard)
+colnames(df) <- c("DW_p_val")
+p1 <- ggplot(data=df, aes(x=DW_p_val)) + geom_histogram() + ylim(c(0,1750))
 
+df <- as.data.frame(DW_inverse)
+colnames(df) <- c("DW_p_val")
+p2 <- ggplot(data=df, aes(x=DW_p_val)) + geom_histogram() + ylim(c(0,1750))
+
+cowplot::plot_grid(p1, p2, labels = c("Standard", "Inverse"))
 ```
 
 
 ## Score test for heteroskedasticity across all models fitted
 ```{r}
+# note: iid assumption violated, maybe try other test like Breusch-Pagan
 score_standard <- as.numeric(lapply(1:nrow(routes), function(r) {
   olsrr::ols_test_score(fit_list[[r]])$p
 }))
@@ -148,7 +188,6 @@ score_inverse <- as.numeric(lapply(1:nrow(routes), function(r) {
 
 ```
 ```{r}
-par(mfrow=c(2,1))
 df <- as.data.frame(score_standard)
 colnames(df) <- c("score_p_val")
 p1 <- ggplot(data=df, aes(x=score_p_val)) + geom_histogram() + ylim(c(0,2800))
@@ -160,16 +199,27 @@ p2 <- ggplot(data=df, aes(x=score_p_val)) + geom_histogram() + ylim(c(0,2800))
 cowplot::plot_grid(p1, p2, labels = c("Standard", "Inverse"))
 ```
 
-## Normality with Kolmogorov-Smirnov test
+## Normality with Shapiro Wilks test
 ```{r}
-# plot inverse fit 1
-ks.test(fit_list_inverse[[1]]$residuals, "pnorm", mean=mean(fit_list_inverse[[1]]$residuals), sd=sd(fit_list_inverse[[1]]$residuals))
+shapiro_standard <- as.numeric(lapply(1:nrow(routes), function(r) {
+  shapiro.test(fit_list[[r]]$residuals)$p.value
+}))
 
-ks.test(fit_list[[1]]$residuals, "pnorm", mean=mean(fit_list[[1]]$residuals), sd=sd(fit_list[[1]]$residuals))
+shapiro_inverse <- as.numeric(lapply(1:nrow(routes), function(r) {
+  shapiro.test(fit_list_inverse[[r]]$residuals)$p.value
+}))
 
 ```
 ```{r}
+df <- as.data.frame(shapiro_standard)
+colnames(df) <- c("shapiro_p_val")
+p1 <- ggplot(data=df, aes(x=shapiro_p_val)) + geom_histogram() + ylim(c(0,3500))
 
+df <- as.data.frame(shapiro_inverse)
+colnames(df) <- c("shapiro_p_val")
+p2 <- ggplot(data=df, aes(x=shapiro_p_val)) + geom_histogram() + ylim(c(0,3500))
+
+cowplot::plot_grid(p1, p2, labels = c("Standard", "Inverse"))
 ```
 
 
@@ -258,7 +308,7 @@ print(sig_storeyBH_inverse)
 ```
 
 ```{r}
-#save('route_rejects_standard', 'route_rejects_storey', 'route_rejects_standard_inverse', 'route_rejects_storey_inverse', file="data/rejections.RData")
+#save('routes', 'route_rejects_standard', 'route_rejects_storey', 'route_rejects_standard_inverse', 'route_rejects_storey_inverse', file="data/rejections.RData")
 ```
 
 
@@ -322,10 +372,8 @@ newStations[1,3] <- 38.87863; newStations[1,4] <- -77.02283
 ## Inverse transformation
 
 ```{r}
-
 # test regression transformations 
 route_data <- get_route_data(routes[1,]$station_start, routes[1,]$station_end)
-
 
 # route_data <- data_weather[data_weather$station_start==routes[1,]$station_start & data_weather$station_end==routes[1,]$station_end,]
 # upper_cutoff <- mean(route_data$duration) + 3 * sd(route_data$duration) # mention data dependent
