@@ -424,9 +424,11 @@ data_weather <- fastDummies::dummy_cols(data_weather, select_columns=c("TMAX_qua
 
 ## For every route, permute durations by covariate group and see if distribution changes
 ```{r}
+set.seed(123)
 pvals_permtest <- rep(NA, nrow(routes))
-n_perm <- 100
+n_perm <- 3000
 
+nCores <- 8
 # permutation test on correlation between duration and days since
 for (r in 1:nrow(routes)) {
   route_data <- get_route_data(routes[r,]$station_start, routes[r,]$station_end)
@@ -437,25 +439,49 @@ for (r in 1:nrow(routes)) {
   T_perms <- rep(NA, n_perm)
   for (i in 1:n_perm) {
     duration_perm <- sample(nrow(route_data), nrow(route_data), )
-    
+
     # permute by covariates
-    route_data_perm <- route_data %>% 
+    route_data_perm <- route_data %>%
       group_by(member, day_of_week, TMAX_quartile, PRCP_none, PRCP_little, PRCP_big) %>%
       mutate(duration_perm = if(n() == 1) duration else sample(duration, n()))
-    
+
     T_perms[i] <- cor(route_data_perm$duration_perm, route_data$days_since_Jan1_2010)
   }
+  
+  # T_perms <- parallel::mclapply(1:n_perm, function(i) {
+  #   duration_perm <- sample(nrow(route_data), nrow(route_data), )
+  #   # permute by covariates
+  #   route_data_perm <- route_data %>%
+  #     group_by(member, day_of_week, TMAX_quartile, PRCP_none, PRCP_little, PRCP_big) %>%
+  #     mutate(duration_perm = if(n() == 1) duration else sample(duration, n()))
+  # 
+  #   return(cor(route_data_perm$duration_perm, route_data$days_since_Jan1_2010))
+  # },
+  # mc.cores=parallel::detectCores()-2)
+  
   pvals_permtest[r] <- if (neg) (1 + sum(T_perms < T_obs)) / (1 + n_perm) else (1 + sum(T_perms > T_obs)) / (1 + n_perm)
-  if (r %% 50 == 0) {
+  if (r %% 500 == 0) {
     print(r)
   }
 }
 ```
 
-```{r}
 
+## BH corrections for perm test
+```{r}
+# run standard BH
+perm_rejects_standard <- runBH(pvals_permtest, alpha=0.05, gamma=0.5, runStorey=F)
+perm_rejects_standard_pval <- runBH(pvals_permtest, alpha=0.05, gamma=0.5, runStorey=F, return_p=T)
+
+# run on our pvalues w/ Storey correction
+perm_rejects_storey <- runBH(pvals_permtest, alpha=0.05, gamma=0.5, runStorey=T)
+perm_rejects_storey_pval <- runBH(pvals_permtest, alpha=0.05, gamma=0.5, runStorey=T, return_p=T)
 ```
 
+```{r}
+# save to file
+#save('pvals_permtest', 'perm_rejects_standard', 'perm_rejects_standard_pval', 'perm_rejects_storey', 'perm_rejects_storey_pval', file="data/perm_rejections.RData")
+```
 
 
 
