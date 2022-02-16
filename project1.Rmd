@@ -258,7 +258,7 @@ print(sig_bonferonni)
 ## BH Significance Table
 ```{r}
 # same table as above but for BH
-runBH <- function(P, alpha, gamma, runStorey=TRUE) {
+runBH <- function(P, alpha, gamma, runStorey=TRUE, return_p=F) {
   n <- length(P)
   P_squiggle <- rep(NA, n)
   # calculate Storey modified P
@@ -283,32 +283,41 @@ runBH <- function(P, alpha, gamma, runStorey=TRUE) {
     reject_indices <- P_squiggle_sort$ix[1:k_hat]
     reject_vec[reject_indices] <- 1
   }
-  reject_vec
+  if (!return_p) {
+    return(reject_vec)
+  }
+  else {
+    return(P_squiggle)
+  }
 }
 
 # run standard BH
 route_rejects_standard <- runBH(route_pvals, alpha=0.05, gamma=0.5, runStorey=F)
+route_rejects_standard_pval <- runBH(route_pvals, alpha=0.05, gamma=0.5, runStorey=F, return_p=T)
 sig_BH <- get_sig_table(which(route_rejects_standard==1))
 print(sig_BH)
 
 # run on our pvalues w/ Storey correction
 route_rejects_storey <- runBH(route_pvals, alpha=0.05, gamma=0.5, runStorey=T)
+route_rejects_storey_pval <- runBH(route_pvals, alpha=0.05, gamma=0.5, runStorey=T, return_p=T)
 sig_storeyBH <- get_sig_table(which(route_rejects_storey==1))
 print(sig_storeyBH)
 
 # run standard BH on inverse transformation
 route_rejects_standard_inverse <- runBH(route_pvals_inverse, alpha=0.05, gamma=0.5, runStorey=F)
+route_rejects_standard_inverse_pval <- runBH(route_pvals_inverse, alpha=0.05, gamma=0.5, runStorey=F, return_p=T)
 sig_BH_inverse <- get_sig_table(which(route_rejects_standard_inverse==1), inverse=T)
 print(sig_BH_inverse)
 
 # run on our pvalues w/ Storey correction on inverse information
 route_rejects_storey_inverse <- runBH(route_pvals_inverse, alpha=0.05, gamma=0.5, runStorey=T)
+route_rejects_storey_inverse_pval <- runBH(route_pvals_inverse, alpha=0.05, gamma=0.5, runStorey=T, return_p=T)
 sig_storeyBH_inverse <- get_sig_table(which(route_rejects_storey_inverse==1), inverse=T)
 print(sig_storeyBH_inverse)
 ```
 
 ```{r}
-#save('routes', 'route_rejects_standard', 'route_rejects_storey', 'route_rejects_standard_inverse', 'route_rejects_storey_inverse', file="data/rejections.RData")
+#save('routes', 'route_rejects_standard', 'route_rejects_storey', 'route_rejects_standard_inverse', 'route_rejects_storey_inverse', 'sig_BH', 'sig_storeyBH', 'sig_BH_inverse', 'sig_storeyBH_inverse', file="data/rejections.RData")
 ```
 
 
@@ -392,10 +401,24 @@ par(mfrow = c(2, 2))
 plot(new_fit)
 ```
 
-
-
 ## Permutation test
 if null, permutation doesnt change dist
 - if confounding, permutation can change -> deal with this
+- permute duration within groups of member, day of week, binned temperature, binned precipitation
+
+TODO:
+- create binned temperature and binned precip vars
+  - TMAX: 
+  - PCRP: 
+- for each route, permute durations within group of member, day of week, binned temp, binned precip
+  - make sure to print size of each group: if only one or few obs of a specific, cut at higher than 100
+- if computationally suck, identify routes that show increase or decrease
+
+
+```{r}
+
+```
+
+
 
        
