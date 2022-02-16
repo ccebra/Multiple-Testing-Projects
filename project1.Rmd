@@ -466,6 +466,16 @@ for (r in 1:nrow(routes)) {
 ```{r}
 # average correlation of storey significant routes
 mean(cors_routes[which(perm_rejects_storey == 1)])
+
+sum(cors_routes[which(perm_rejects_storey == 1)]>0)
+```
+```{r}
+routes_perm_tests_storey <- cbind(routes, perm_rejects_storey, perm_rejects_storey_pval)
+
+routes_perm_tests_storey_sorted <- routes_perm_tests_storey[order(perm_rejects_storey_pval),]
+```
+```{r}
+save('pvals_permtest', 'perm_rejects_standard', 'perm_rejects_standard_pval', 'perm_rejects_storey', 'perm_rejects_storey_pval', 'routes_perm_tests_storey', 'routes_perm_tests_storey_sorted', file="data/perm_rejections.RData")
 ```
 
 
