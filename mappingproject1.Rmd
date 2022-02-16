@@ -38,33 +38,48 @@ newStations[1,3] <- 38.87863; newStations[1,4] <- -77.02283
 ```
 
 ```{r make dataframes with rejections}
-routes = cbind(routes,route_rejects_standard,route_rejects_standard_inverse,route_rejects_storey,route_rejects_storey_inverse)
-routes = routes[(routes$station_start != routes$station_end),]
+#routes = cbind(routes,route_rejects_standard,route_rejects_standard_inverse,route_rejects_storey,route_rejects_storey_inverse)
+sig_BH = sig_BH[(sig_BH$station_start != sig_BH$station_end),]
+sig_BH_inverse = sig_BH_inverse[(sig_BH_inverse$station_start != sig_BH_inverse$station_end),]
+sig_storeyBH = sig_storeyBH[(sig_storeyBH$station_start != sig_storeyBH$station_end),]
+sig_storeyBH_inverse = sig_storeyBH_inverse[(sig_storeyBH_inverse$station_start != sig_storeyBH_inverse$station_end),]
 library(dplyr)
 startStations = newStations
 startStations$station_start = as.numeric(startStations$terminalName)
 endStations = newStations
 endStations$station_end = as.numeric(endStations$terminalName)
-routes_ss = left_join(routes,startStations,by = "station_start")
-routes_se = left_join(routes_ss,endStations,by = "station_end")
-routes_cleaned = routes_se[c(3,4,5,6,9,10,13,14)]
-routes_BH = routes_cleaned[routes_cleaned$route_rejects_standard == 1, c(5:8)]
-routes_BH_inv = routes_cleaned[routes_cleaned$route_rejects_standard_inverse == 1, c(5:8)]
-routes_Storey = routes_cleaned[routes_cleaned$route_rejects_storey == 1, c(5:8)]
-routes_Storey_inv = routes_cleaned[routes_cleaned$route_rejects_storey_inverse == 1, c(5:8)]
+routes_BH_start = left_join(sig_BH,startStations,by = "station_start")
+routes_BH_end = left_join(routes_BH_start,endStations,by = "station_end")
+routes_BH = routes_BH_end[c(3,4,5,8,9,12,13)]
+routes_BH_inv_start = left_join(sig_BH_inverse,startStations,by = "station_start")
+routes_BH_inv_end = left_join(routes_BH_inv_start,endStations,by = "station_end")
+routes_BH_inv = routes_BH_inv_end[c(3,4,5,8,9,12,13)]
+routes_Storey_start = left_join(sig_storeyBH,startStations,by = "station_start")
+routes_Storey_end = left_join(routes_Storey_start,endStations,by = "station_end")
+routes_Storey = routes_Storey_end[c(3,4,5,8,9,12,13)]
+routes_Storey_inv_start = left_join(sig_storeyBH_inverse,startStations,by = "station_start")
+routes_Storey_inv_end = left_join(routes_Storey_inv_start,endStations,by = "station_end")
+routes_Storey_inv = routes_Storey_inv_end[c(3,4,5,8,9,12,13)]
+
+routes_BH_top = routes_BH[c(1:50),]
+routes_BH_inv_top = routes_BH_inv[c(1:50),]
+routes_Storey_top = routes_Storey[c(1:50),]
+routes_Storey_inv_top = routes_Storey_inv[c(1:50),]
 ```
 
-```{r plot map}
+```{r plot BH maps}
 library(ggplot2)
 library(ggmap)
-#usMap <- borders("state", colour="grey", fill="white")
-#ggplot() + usMap
 bbox <- c(left = -77.1, bottom = 38.85, right = -76.95, top = 38.95)
-#DC <- ggmap(get_stamenmap(bbox, zoom = 13))
-allUSA <- ggmap(get_stamenmap(bbox, zoom = 13)) +
+BHmap <- ggmap(get_stamenmap(bbox, zoom = 13)) +
   geom_curve(data=routes_BH,
              aes(x=long.x, y=lat.x, xend=long.y, yend=lat.y),
              col="#00008b",
+             size=.2,
+             curvature=0.2) +
+  geom_curve(data=routes_BH_top,
+             aes(x=long.x, y=lat.x, xend=long.y, yend=lat.y),
+             col="#8b0000",
              size=.2,
              curvature=0.2) +
   geom_point(data=routes_BH,
@@ -74,6 +89,13 @@ allUSA <- ggmap(get_stamenmap(bbox, zoom = 13)) +
   geom_point(data=routes_BH,
              aes(x=long.y, y=lat.y),
              colour="blue", size=0.2) +
+  geom_point(data=routes_BH_top,
+             aes(x=long.x, y=lat.x),
+             colour="red",
+             size=0.2) +
+  geom_point(data=routes_BH_top,
+             aes(x=long.y, y=lat.y),
+             colour="red", size=0.2) +
   theme(axis.line=element_blank(),
         axis.text.x=element_blank(),
         axis.text.y=element_blank(),
@@ -83,16 +105,29 @@ allUSA <- ggmap(get_stamenmap(bbox, zoom = 13)) +
         plot.title=element_text(hjust=0.5, size=12)) +
   coord_cartesian(ylim=c(38.85, 38.95), xlim=c(-77.1, -76.95)) +
   ggtitle("BH Procedure Significant Routes")
-allUSA
+
+BHtopmap <- ggmap(get_stamenmap(bbox, zoom = 13)) +
+  geom_curve(data=routes_BH_top,
+             aes(x=long.x, y=lat.x, xend=long.y, yend=lat.y),
+             col="#8b0000",
+             size=1.7,
+             curvature=0.2) +
+  geom_point(data=routes_BH_top,
+             aes(x=long.x, y=lat.x),
+             colour="red",
+             size=1.7) +
+  geom_point(data=routes_BH_top,
+             aes(x=long.y, y=lat.y),
+             colour="red", size=1.7) +
+  theme(axis.line=element_blank(),
+        axis.text.x=element_blank(),
+        axis.text.y=element_blank(),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.ticks=element_blank(),
+        plot.title=element_text(hjust=0.5, size=12)) +
+  coord_cartesian(ylim=c(38.85, 38.95), xlim=c(-77.1, -76.95)) +
+  ggtitle("BH Procedure 50 Most Significant Routes")
+BHmap
+BHtopmap
 ```
-
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
