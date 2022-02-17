@@ -229,7 +229,7 @@ cowplot::plot_grid(p1, p2, labels = c("Standard", "Inverse"))
 # save('fit_list_inverse', 'route_pvals_inverse', 'route_coef_inverse', file="data/regression_out_inverse.RData")
 ```
 
-## Bonferroni significance tables
+## Bonferroni significance tables - 'days_since_Jan1_2010'
 ```{r}
 # routes w/ p val lower boferonni at alpha= 0.05
 get_sig_table <- function(sig_ind, inverse=F) {
@@ -254,6 +254,40 @@ print(sig_bonferonni_1)
 sig_bonferonni_2 <- get_sig_table(which(route_pvals_inverse < 0.05/length(route_pvals_inverse)), inverse=T)
 print(sig_bonferonni_2)
 ```
+
+
+## Bonferroni significance tables - 'member'
+```{r}
+# routes w/ p val lower boferonni at alpha= 0.05
+get_sig_table <- function(sig_ind, inverse=F) {
+  sig_routes <- routes[sig_ind,]
+  sig_fits <- fit_list[sig_ind]
+  if (inverse) {
+    sig_fits <- fit_list_inverse[sig_ind]
+  }
+  sig_pval <- as.numeric(lapply(sig_fits, function(x) {summary(x)$coefficients[,4]['memberTRUE']}))
+  sig_coef <- as.numeric(lapply(sig_fits, function(x) {summary(x)$coefficients[,1]['memberTRUE']}))
+  sig_sd <- as.numeric(lapply(sig_fits, function(x) {summary(x)$coefficients[,2]['memberTRUE']}))
+  sig_df <- cbind(sig_routes, sig_coef, sig_sd, sig_pval)
+  names(sig_df) <- c('station_start', 'station_end', 'Beta_hat', 'std_error', 'pvalue')
+  sig_df <- sig_df[order(sig_df$pvalue),]
+}
+
+# standard fit 
+sig_bonferonni_m1 <- get_sig_table(which(route_pvals < 0.05/length(route_pvals)))
+print(sig_bonferonni_m1)
+
+# inverse fit
+sig_bonferonni_m2 <- get_sig_table(which(route_pvals_inverse < 0.05/length(route_pvals_inverse)), inverse=T)
+print(sig_bonferonni_m2)
+```
+
+
+
+
+
+
+
 
 ## BH Significance Table
 ```{r}
@@ -352,7 +386,6 @@ print(p)
 mindex_inverse <- which.min(route_pvals_inverse)
 p <- plot_corrected_route(mindex_inverse, inverse=T)
 print(p)
-
 ```
 
 
