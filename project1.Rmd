@@ -63,12 +63,12 @@ df <- data_weather[data_weather$station_start==31104 & data_weather$station_end=
 ggplot(data=df, aes(x=days_since_Jan1_2010, y=mean_daily_duration)) +
   geom_line() + ylim(c(0,1000))
 ```
-The average daily duration oscillates over time very drastically, suggesting people happen to ride longer bike trips on certain days of the week.
+
 
 
 ## Subset data and run regression on each ride and save p-vals + coefficients
 ```{r}
-# remove outlier rides > 3 sd away from route mean
+# function to remove outlier rides > 3 sd away from route mean
 get_route_data <- function(start_station, end_station) {
   route_data <- data_weather[data_weather$station_start==start_station & data_weather$station_end==end_station,]
   upper_cutoff <- mean(route_data$duration) + 3 * sd(route_data$duration) # mention data dependent
@@ -105,7 +105,7 @@ for (r in 1:nrow(routes)) {
 }
 ```
 
-## Plotting regression assumptions on randomly sampled data
+## Plots to test regression assumptions on randomly sampled data
 ```{r}
 set.seed(123)
 samples <- round(runif(3, 0, nrow(routes)))
@@ -199,7 +199,7 @@ p2 <- ggplot(data=df, aes(x=score_p_val)) + geom_histogram() + ylim(c(0,2800))
 cowplot::plot_grid(p1, p2, labels = c("Standard", "Inverse"))
 ```
 
-## Normality with Shapiro Wilks test
+## Testing Normality with Shapiro Wilks test
 ```{r}
 shapiro_standard <- as.numeric(lapply(1:nrow(routes), function(r) {
   shapiro.test(fit_list[[r]]$residuals)$p.value
