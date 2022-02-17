@@ -32,9 +32,9 @@ The 5 terminals with different locations are: 31000, 31500, 31302, 31609, 31239
 ```{r}
 newStations[1,3] <- 38.85979; newStations[1,4] <- -77.05357
 newStations[78,3] <- 38.90567; newStations[78,4] <- -77.04120 
-newStations[1,3] <- 38.93465; newStations[1,4] <--77.07246
-newStations[1,3] <- 38.91930; newStations[1,4] <- -77.00056
-newStations[1,3] <- 38.87863; newStations[1,4] <- -77.02283
+newStations[89,3] <- 38.93465; newStations[89,4] <--77.07246
+newStations[98,3] <- 38.91930; newStations[98,4] <- -77.00056
+newStations[114,3] <- 38.87863; newStations[114,4] <- -77.02283
 ```
 
 ```{r make dataframes with rejections}
@@ -327,4 +327,9 @@ Storeymap
 Storeytopmap
 Storeyinvmap
 Storeyinvtopmap
+```
+
+```{r generate similar for the permutation test}
+load("data/perm_rejections.RData")
+load("data/perm_rejections150.Rdata")
 ```
