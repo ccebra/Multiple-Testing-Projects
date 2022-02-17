@@ -61,10 +61,18 @@ routes_Storey_inv_start = left_join(sig_storeyBH_inverse,startStations,by = "sta
 routes_Storey_inv_end = left_join(routes_Storey_inv_start,endStations,by = "station_end")
 routes_Storey_inv = routes_Storey_inv_end[c(3,4,5,8,9,12,13)]
 
+routes_BH_pos = routes_BH[(routes_BH$Beta_hat > 0),]
 routes_BH_top = routes_BH[c(1:50),]
+routes_BH_pos_top = routes_BH_top[(routes_BH_top$Beta_hat > 0),]
+routes_BH_inv_pos = routes_BH_inv[(routes_BH_inv$Beta_hat < 0),]
 routes_BH_inv_top = routes_BH_inv[c(1:50),]
+routes_BH_inv_pos_top = routes_BH_inv_top[(routes_BH_inv_top$Beta_hat < 0),]
+routes_Storey_pos = routes_Storey[(routes_Storey$Beta_hat > 0),]
 routes_Storey_top = routes_Storey[c(1:50),]
+routes_Storey_pos_top = routes_Storey_top[(routes_Storey_top$Beta_hat > 0),]
+routes_Storey_inv_pos = routes_Storey_inv[(routes_Storey_inv$Beta_hat < 0),]
 routes_Storey_inv_top = routes_Storey_inv[c(1:50),]
+routes_Storey_inv_pos_top = routes_Storey_inv_top[(routes_Storey_inv_top$Beta_hat < 0),]
 ```
 
 ```{r plot BH maps}
@@ -77,7 +85,7 @@ BHmap <- ggmap(get_stamenmap(bbox, zoom = 13)) +
              col="#00008b",
              size=.2,
              curvature=0.2) +
-  geom_curve(data=routes_BH_top,
+  geom_curve(data=routes_BH_pos,
              aes(x=long.x, y=lat.x, xend=long.y, yend=lat.y),
              col="#8b0000",
              size=.2,
@@ -89,11 +97,11 @@ BHmap <- ggmap(get_stamenmap(bbox, zoom = 13)) +
   geom_point(data=routes_BH,
              aes(x=long.y, y=lat.y),
              colour="blue", size=0.2) +
-  geom_point(data=routes_BH_top,
+  geom_point(data=routes_BH_pos,
              aes(x=long.x, y=lat.x),
              colour="red",
              size=0.2) +
-  geom_point(data=routes_BH_top,
+  geom_point(data=routes_BH_pos,
              aes(x=long.y, y=lat.y),
              colour="red", size=0.2) +
   theme(axis.line=element_blank(),
@@ -109,14 +117,26 @@ BHmap <- ggmap(get_stamenmap(bbox, zoom = 13)) +
 BHtopmap <- ggmap(get_stamenmap(bbox, zoom = 13)) +
   geom_curve(data=routes_BH_top,
              aes(x=long.x, y=lat.x, xend=long.y, yend=lat.y),
+             col="#00008b",
+             size=1.7,
+             curvature=0.2) +
+  geom_curve(data=routes_BH_pos_top,
+             aes(x=long.x, y=lat.x, xend=long.y, yend=lat.y),
              col="#8b0000",
              size=1.7,
              curvature=0.2) +
   geom_point(data=routes_BH_top,
              aes(x=long.x, y=lat.x),
-             colour="red",
+             colour="blue",
              size=1.7) +
   geom_point(data=routes_BH_top,
+             aes(x=long.y, y=lat.y),
+             colour="blue", size=1.7) +
+  geom_point(data=routes_BH_pos_top,
+             aes(x=long.x, y=lat.x),
+             colour="red",
+             size=1.7) +
+  geom_point(data=routes_BH_pos_top,
              aes(x=long.y, y=lat.y),
              colour="red", size=1.7) +
   theme(axis.line=element_blank(),
@@ -138,7 +158,7 @@ BHinvmap <- ggmap(get_stamenmap(bbox, zoom = 13)) +
              col="#00008b",
              size=.2,
              curvature=0.2) +
-  geom_curve(data=routes_BH_inv_top,
+  geom_curve(data=routes_BH_inv_pos,
              aes(x=long.x, y=lat.x, xend=long.y, yend=lat.y),
              col="#8b0000",
              size=.2,
@@ -150,11 +170,11 @@ BHinvmap <- ggmap(get_stamenmap(bbox, zoom = 13)) +
   geom_point(data=routes_BH_inv,
              aes(x=long.y, y=lat.y),
              colour="blue", size=0.2) +
-  geom_point(data=routes_BH_inv_top,
+  geom_point(data=routes_BH_inv_pos,
              aes(x=long.x, y=lat.x),
              colour="red",
              size=0.2) +
-  geom_point(data=routes_BH_inv_top,
+  geom_point(data=routes_BH_inv_pos,
              aes(x=long.y, y=lat.y),
              colour="red", size=0.2) +
   theme(axis.line=element_blank(),
@@ -170,14 +190,26 @@ BHinvmap <- ggmap(get_stamenmap(bbox, zoom = 13)) +
 BHinvtopmap <- ggmap(get_stamenmap(bbox, zoom = 13)) +
   geom_curve(data=routes_BH_inv_top,
              aes(x=long.x, y=lat.x, xend=long.y, yend=lat.y),
+             col="#00008b",
+             size=1.7,
+             curvature=0.2) +
+  geom_curve(data=routes_BH_inv_pos_top,
+             aes(x=long.x, y=lat.x, xend=long.y, yend=lat.y),
              col="#8b0000",
              size=1.7,
              curvature=0.2) +
   geom_point(data=routes_BH_inv_top,
              aes(x=long.x, y=lat.x),
-             colour="red",
+             colour="blue",
              size=1.7) +
   geom_point(data=routes_BH_inv_top,
+             aes(x=long.y, y=lat.y),
+             colour="blue", size=1.7) +
+  geom_point(data=routes_BH_inv_pos_top,
+             aes(x=long.x, y=lat.x),
+             colour="red",
+             size=1.7) +
+  geom_point(data=routes_BH_inv_pos_top,
              aes(x=long.y, y=lat.y),
              colour="red", size=1.7) +
   theme(axis.line=element_blank(),
@@ -200,7 +232,7 @@ Storeymap <- ggmap(get_stamenmap(bbox, zoom = 13)) +
              col="#00008b",
              size=.2,
              curvature=0.2) +
-  geom_curve(data=routes_Storey_top,
+  geom_curve(data=routes_Storey_pos,
              aes(x=long.x, y=lat.x, xend=long.y, yend=lat.y),
              col="#8b0000",
              size=.2,
@@ -212,11 +244,11 @@ Storeymap <- ggmap(get_stamenmap(bbox, zoom = 13)) +
   geom_point(data=routes_Storey,
              aes(x=long.y, y=lat.y),
              colour="blue", size=0.2) +
-  geom_point(data=routes_Storey_top,
+  geom_point(data=routes_Storey_pos,
              aes(x=long.x, y=lat.x),
              colour="red",
              size=0.2) +
-  geom_point(data=routes_Storey_top,
+  geom_point(data=routes_Storey_pos,
              aes(x=long.y, y=lat.y),
              colour="red", size=0.2) +
   theme(axis.line=element_blank(),
@@ -227,7 +259,7 @@ Storeymap <- ggmap(get_stamenmap(bbox, zoom = 13)) +
         axis.ticks=element_blank(),
         plot.title=element_text(hjust=0.5, size=12)) +
   coord_cartesian(ylim=c(38.85, 38.95), xlim=c(-77.1, -76.95)) +
-  ggtitle("Storey BH Procedure Significant Routes")
+  ggtitle("Storey Procedure Significant Routes")
 
 Storeytopmap <- ggmap(get_stamenmap(bbox, zoom = 13)) +
   geom_curve(data=routes_Storey_top,
@@ -235,11 +267,23 @@ Storeytopmap <- ggmap(get_stamenmap(bbox, zoom = 13)) +
              col="#8b0000",
              size=1.7,
              curvature=0.2) +
+  geom_curve(data=routes_Storey_pos_top,
+             aes(x=long.x, y=lat.x, xend=long.y, yend=lat.y),
+             col="#00008b",
+             size=1.7,
+             curvature=0.2) +
   geom_point(data=routes_Storey_top,
+             aes(x=long.x, y=lat.x),
+             colour="blue",
+             size=1.7) +
+  geom_point(data=routes_Storey_top,
+             aes(x=long.y, y=lat.y),
+             colour="blue", size=1.7) +
+  geom_point(data=routes_Storey_pos_top,
              aes(x=long.x, y=lat.x),
              colour="red",
              size=1.7) +
-  geom_point(data=routes_Storey_top,
+  geom_point(data=routes_Storey_pos_top,
              aes(x=long.y, y=lat.y),
              colour="red", size=1.7) +
   theme(axis.line=element_blank(),
@@ -250,7 +294,7 @@ Storeytopmap <- ggmap(get_stamenmap(bbox, zoom = 13)) +
         axis.ticks=element_blank(),
         plot.title=element_text(hjust=0.5, size=12)) +
   coord_cartesian(ylim=c(38.85, 38.95), xlim=c(-77.1, -76.95)) +
-  ggtitle("Storey BH Procedure 50 Most Significant Routes")
+  ggtitle("Storey Procedure 50 Most Significant Routes")
 #Storeymap
 #Storeytopmap
 ```
@@ -262,7 +306,7 @@ Storeyinvmap <- ggmap(get_stamenmap(bbox, zoom = 13)) +
              col="#00008b",
              size=.2,
              curvature=0.2) +
-  geom_curve(data=routes_Storey_inv_top,
+  geom_curve(data=routes_Storey_inv_pos,
              aes(x=long.x, y=lat.x, xend=long.y, yend=lat.y),
              col="#8b0000",
              size=.2,
@@ -274,11 +318,11 @@ Storeyinvmap <- ggmap(get_stamenmap(bbox, zoom = 13)) +
   geom_point(data=routes_Storey_inv,
              aes(x=long.y, y=lat.y),
              colour="blue", size=0.2) +
-  geom_point(data=routes_Storey_inv_top,
+  geom_point(data=routes_Storey_inv_pos,
              aes(x=long.x, y=lat.x),
              colour="red",
              size=0.2) +
-  geom_point(data=routes_Storey_inv_top,
+  geom_point(data=routes_Storey_inv_pos,
              aes(x=long.y, y=lat.y),
              colour="red", size=0.2) +
   theme(axis.line=element_blank(),
@@ -289,19 +333,31 @@ Storeyinvmap <- ggmap(get_stamenmap(bbox, zoom = 13)) +
         axis.ticks=element_blank(),
         plot.title=element_text(hjust=0.5, size=12)) +
   coord_cartesian(ylim=c(38.85, 38.95), xlim=c(-77.1, -76.95)) +
-  ggtitle("Storey BH Inverse Procedure Significant Routes")
+  ggtitle("Storey Inverse Procedure Significant Routes")
 
 Storeyinvtopmap <- ggmap(get_stamenmap(bbox, zoom = 13)) +
   geom_curve(data=routes_Storey_inv_top,
+             aes(x=long.x, y=lat.x, xend=long.y, yend=lat.y),
+             col="#00008b",
+             size=1.7,
+             curvature=0.2) +
+  geom_curve(data=routes_Storey_inv_pos_top,
              aes(x=long.x, y=lat.x, xend=long.y, yend=lat.y),
              col="#8b0000",
              size=1.7,
              curvature=0.2) +
   geom_point(data=routes_Storey_inv_top,
              aes(x=long.x, y=lat.x),
-             colour="red",
+             colour="blue",
              size=1.7) +
   geom_point(data=routes_Storey_inv_top,
+             aes(x=long.y, y=lat.y),
+             colour="blue", size=1.7) +
+  geom_point(data=routes_Storey_inv_pos_top,
+             aes(x=long.x, y=lat.x),
+             colour="red",
+             size=1.7) +
+  geom_point(data=routes_Storey_inv_pos_top,
              aes(x=long.y, y=lat.y),
              colour="red", size=1.7) +
   theme(axis.line=element_blank(),
@@ -312,7 +368,7 @@ Storeyinvtopmap <- ggmap(get_stamenmap(bbox, zoom = 13)) +
         axis.ticks=element_blank(),
         plot.title=element_text(hjust=0.5, size=12)) +
   coord_cartesian(ylim=c(38.85, 38.95), xlim=c(-77.1, -76.95)) +
-  ggtitle("Storey BH Inverse Procedure 50 Most Significant Routes")
+  ggtitle("Storey Inverse Procedure 50 Most Significant Routes")
 #Storeyinvmap
 #Storeyinvtopmap
 ```
