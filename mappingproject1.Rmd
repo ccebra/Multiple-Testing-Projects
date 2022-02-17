@@ -331,5 +331,65 @@ Storeyinvtopmap
 
 ```{r generate similar for the permutation test}
 load("data/perm_rejections.RData")
-load("data/perm_rejections150.Rdata")
+load("data/perm_rejections_150.RData")
+routes_perm_tests_standard = routes_perm_tests_standard[(routes_perm_tests_standard$station_start != routes_perm_tests_standard$station_end), ]
+routes_perm_BH_start = left_join(routes_perm_tests_standard,startStations,by = "station_start")
+routes_perm_BH_end = left_join(routes_perm_BH_start,endStations,by = "station_end")
+routes_perm_BH = routes_perm_BH_end[,c(3,4,7,8,11,12)]
+routes_perm_BH = routes_perm_BH[(routes_perm_BH$perm_rejects_standard == 1),]
+routes_perm_tests_storey = routes_perm_tests_storey[(routes_perm_tests_storey$station_start != routes_perm_tests_storey$station_end), ]
+routes_perm_Storey_start = left_join(routes_perm_tests_storey,startStations,by = "station_start")
+routes_perm_Storey_end = left_join(routes_perm_Storey_start,endStations,by = "station_end")
+routes_perm_Storey = routes_perm_Storey_end[,c(3,4,7,8,11,12)]
+routes_perm_Storey = routes_perm_Storey[(routes_perm_BH$perm_rejects_standard == 1),]
+```
+
+```{r make maps}
+BHpermmap <- ggmap(get_stamenmap(bbox, zoom = 13)) +
+  geom_curve(data=routes_perm_BH,
+             aes(x=long.x, y=lat.x, xend=long.y, yend=lat.y),
+             col="#00008b",
+             size=1.0,
+             curvature=0.2) +
+  geom_point(data=routes_perm_BH,
+             aes(x=long.x, y=lat.x),
+             colour="blue",
+             size=1.0) +
+  geom_point(data=routes_perm_BH,
+             aes(x=long.y, y=lat.y),
+             colour="blue", size=1.0) +
+  theme(axis.line=element_blank(),
+        axis.text.x=element_blank(),
+        axis.text.y=element_blank(),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.ticks=element_blank(),
+        plot.title=element_text(hjust=0.5, size=12)) +
+  coord_cartesian(ylim=c(38.85, 38.95), xlim=c(-77.1, -76.95)) +
+  ggtitle("BH Permutation Test Procedure Significant Routes")
+Storeypermmap <- ggmap(get_stamenmap(bbox, zoom = 13)) +
+  geom_curve(data=routes_perm_Storey,
+             aes(x=long.x, y=lat.x, xend=long.y, yend=lat.y),
+             col="#00008b",
+             size=1.0,
+             curvature=0.2) +
+  geom_point(data=routes_perm_Storey,
+             aes(x=long.x, y=lat.x),
+             colour="blue",
+             size=1.0) +
+  geom_point(data=routes_perm_Storey,
+             aes(x=long.y, y=lat.y),
+             colour="blue", size=1.0) +
+  theme(axis.line=element_blank(),
+        axis.text.x=element_blank(),
+        axis.text.y=element_blank(),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.ticks=element_blank(),
+        plot.title=element_text(hjust=0.5, size=12)) +
+  coord_cartesian(ylim=c(38.85, 38.95), xlim=c(-77.1, -76.95)) +
+  ggtitle("Storey Permutation Test Procedure Significant Routes")
+
+BHpermmap
+Storeypermmap
 ```
