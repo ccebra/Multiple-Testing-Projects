@@ -229,7 +229,7 @@ cowplot::plot_grid(p1, p2, labels = c("Standard", "Inverse"))
 # save('fit_list_inverse', 'route_pvals_inverse', 'route_coef_inverse', file="data/regression_out_inverse.RData")
 ```
 
-## Bonferroni significance table
+## Bonferroni significance tables
 ```{r}
 # routes w/ p val lower boferonni at alpha= 0.05
 get_sig_table <- function(sig_ind, inverse=F) {
@@ -247,12 +247,12 @@ get_sig_table <- function(sig_ind, inverse=F) {
 }
 
 # standard fit 
-sig_bonferonni <- get_sig_table(which(route_pvals < 0.05/length(route_pvals)))
-print(sig_bonferonni)
+sig_bonferonni_1 <- get_sig_table(which(route_pvals < 0.05/length(route_pvals)))
+print(sig_bonferonni_1)
 
 # inverse fit
-sig_bonferonni <- get_sig_table(which(route_pvals_inverse < 0.05/length(route_pvals_inverse)), inverse=T)
-print(sig_bonferonni)
+sig_bonferonni_2 <- get_sig_table(which(route_pvals_inverse < 0.05/length(route_pvals_inverse)), inverse=T)
+print(sig_bonferonni_2)
 ```
 
 ## BH Significance Table
