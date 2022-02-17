@@ -12,19 +12,20 @@ geometry:
 - top=  0.9cm
 fontsize: 10pt 
 ---
-```{r global-options, include=FALSE}
-knitr::opts_chunk$set(
-        fig.width=5, fig.height=3.4,
-        fig.path='Figs/', fig.align='center',
-        warning=FALSE, message=FALSE,
-        strip.white=TRUE, cache=TRUE)
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval=FALSE)
+# knitr::opts_chunk$set(
+#         fig.width=5, fig.height=3.4,
+#         fig.path='Figs/', fig.align='center',
+#         warning=FALSE, message=FALSE,
+#         strip.white=TRUE, cache=TRUE)
 ```
 \newcommand{\h}[1]{\colorbox{yellow}{$\displaystyle #1$}} 
 \titlespacing{\title}{0pt}{\parskip}{-\parskip}    
 \vspace{-12.5truemm} 
  
 \begin{center}
-Christopher Tang
+Christopher Cebra, Christopher Tang, Jerome Freudenberg
 \end{center}
 
 
@@ -482,7 +483,7 @@ routes_perm_tests_storey <- cbind(routes, perm_rejects_storey, perm_rejects_stor
 routes_perm_tests_storey_sorted <- routes_perm_tests_storey[order(perm_rejects_storey_pval),]
 ```
 ```{r}
-save('pvals_permtest', 'perm_rejects_standard', 'perm_rejects_standard_pval', 'perm_rejects_storey', 'perm_rejects_storey_pval', 'routes_perm_tests_standard', 'routes_perm_tests_standard_sorted', 'routes_perm_tests_storey', 'routes_perm_tests_storey_sorted', file="data/perm_rejections.RData")
+#save('pvals_permtest', 'perm_rejects_standard', 'perm_rejects_standard_pval', 'perm_rejects_storey', 'perm_rejects_storey_pval', 'routes_perm_tests_standard', 'routes_perm_tests_standard_sorted', 'routes_perm_tests_storey', 'routes_perm_tests_storey_sorted', file="data/perm_rejections.RData")
 ```
 
 
